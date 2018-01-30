@@ -1,0 +1,51 @@
+---
+title: "Untitled"
+author: "William Wu"
+date: "11/4/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DataComputing)
+library(tidyr)
+library(printr)
+library(dplyr)
+```
+
+```{r}
+Adv2017 <- read.csv("~/Desktop/NBA-FA-SAGB/player-data/player2017/Adv-2017.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+head(Adv2017)
+```
+
+```{r}
+FixedName2017<- mutate(Adv2017, 
+                       fix = gsub(
+                         '[^A-Za-z]+', '',
+                         gsub('[.].*','',
+                              tolower(gsub('\\\\.*', '', Player))))
+    )
+head(FixedName2017)
+```
+
+```{r}
+MovedPlayers2017 <- FixedName2017 %>%
+  filter(Tm == "TOT")
+
+head(MovedPlayers2017)
+```
+
+```{r}
+temp2017 <- FixedName2017 %>% group_by(Player) %>%
+  filter(max(row_number()) == 1) %>% ungroup()
+head(temp2017, 10)
+```
+
+```{r}
+final2017 <- rbind(temp2017, MovedPlayers2017)
+head(final2017)
+```
+

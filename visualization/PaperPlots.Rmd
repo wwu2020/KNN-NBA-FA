@@ -1,0 +1,112 @@
+---
+title: "NBA-FAPlots"
+author: "William Wu"
+date: "1/22/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DataComputing)
+library(tidyr)
+library(printr)
+library(dplyr)
+library(scales)
+```
+
+
+```{r}
+Per36 <- read.csv("~/Desktop/NBA-FA-SAGB/player-data-wrangled/player2017/PerGame-2017wrangled.csv", stringsAsFactors = FALSE)
+Adv <- read.csv("~/Desktop/NBA-FA-SAGB/player-data-wrangled/player2017/Adv-2017wrangled.csv", stringsAsFactors = FALSE)
+
+Final <- read.csv("~/Desktop/NBA-FA-SAGB/FINAL.csv", stringsAsFactors = FALSE)
+knn <- read.csv("~/Desktop/NBA-FA-Paper/KNN.csv", stringsAsFactors = FALSE)
+results <- read.csv("~/Desktop/NBA-FA-SAGB/2018-Predictions/2018-predictedSalary-detailed.csv", stringsAsFactors = FALSE)
+
+```
+
+```{r}
+head(Per36)
+Per36$Pos[Per36$Pos == 'PF-C'] <- 'PF'
+Per36$Pos_f = factor(Per36$Pos, levels=c('C', 'PF', 'SF', 'SG', 'PG'))
+```
+
+```{r, fig.height= 8, fig.width= 10}
+DRB <- Per36 %>% ggplot(aes(x = DRB)) + 
+  geom_histogram(bins = 15) +
+  facet_grid(Pos_f ~ .) +
+  scale_x_continuous(breaks = seq(0, 11, 2), limits = c(0, 11)) +
+  xlab('Defensive Rebounds') +
+  theme(
+    title = element_text(size = 20), axis.text.y = element_blank(),
+    axis.title.y = element_blank(), axis.ticks.y = element_blank(),
+    panel.grid.major.x = element_line(color = 'Gray')
+  )
+DRB
+```
+
+```{r}
+head(Final)
+```
+
+
+
+
+```{r}
+Final$cap1 <- ordered(Final$capCluster,
+levels = c(1,2,3,4,5,6,7,8),
+labels = c("1", "2", "3",'4','5','6','7','8'))
+```
+
+```{r, fig.height= 4, fig.width= 8}
+Clusters <- Final %>% ggplot(aes(x = capCluster, fill = cap1)) + 
+  geom_bar() +
+  xlab('Cluster') + ggtitle('Distribution of Clusters') + ylab('Number of Players') +
+  scale_x_discrete(label = waiver(), breaks = seq(1, 8, 1), limits = seq(1, 8, 1))  + guides(fill = FALSE) +
+  theme(
+    title = element_text(size = 20), axis.title.y = element_text(size = 12),
+    axis.title.x = element_text(size = 12),
+    legend.title = element_blank()
+  )
+Clusters
+```
+
+
+```{r, fig.height= 6, fig.width= 8}
+PercentCap <- Final %>% ggplot(aes(x = PercentCap)) +
+  geom_histogram(aes(fill = cap1), bins = 15) +
+  scale_x_continuous(limits = c(0,.42)) +
+  labs(fill = 'Cluster', title = 'How Percent-cap is Divided') +
+  ylab('Number of Players') + 
+  theme(
+    title = element_text(size = 17), axis.title.y = element_blank(),
+    legend.title = element_text(size = 12)
+  )
+PercentCap
+```
+
+```{r}
+head(knn)
+Chosen <- subset(knn, k.neighbors == 17)
+Chosen
+```
+
+```{r}
+
+KNNscatter<- knn %>% ggplot(aes(x = k.neighbors, y = error)) + geom_point(alpha = .7) +
+  xlab("Amount of Neighbors") + ylab("Error") + geom_point(data=Chosen, colour="red") +
+  ggtitle("Number of Neighbors vs. Average Error") +
+  geom_text(data = Chosen, label="Chosen Neighbors (k = 17)", vjust= -1.5, size = 2)
+
+KNNscatter
+```
+
+```{r}
+head(results)
+```
+
+```{r, fig.width= 10}
+byTeam <- results %>% ggplot(aes(x=Tm, y = Cluster)) + geom_jitter(width = .3, height = .1)
+byTeam
+```
+

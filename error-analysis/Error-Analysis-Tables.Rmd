@@ -1,0 +1,49 @@
+---
+title: "Error Analysis"
+author: "William Wu"
+date: "1/25/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DataComputing)
+library(tidyr)
+library(printr)
+library(dplyr)
+library(scales)
+```
+
+```{r}
+sce <- read.csv("~/Desktop/NBA-FA-Paper/FINAL.csv")
+predict <- read.csv("~/Desktop/NBA-FA-Paper/stats-per-error-cluster-all.csv")
+predict
+```
+
+```{r}
+clusters <- predict %>% select(PPG_x, DRB_x,TOV_x,VORP_x,prediction) %>%
+  group_by(prediction) %>% summarise(PPG = mean(PPG_x),
+                                     DRB = mean(DRB_x),
+                                     TOV = mean(TOV_x),
+                                     VORP = mean(VORP_x))
+clusters
+```
+
+```{r}
+head(sce)
+```
+
+```{r}
+dist <- sce %>% group_by(capCluster) %>%
+  summarise(PPG = mean(PPG),
+            DRB = mean(DRB),
+            TOV = mean(TOV),
+            VORP = mean(VORP))
+dist
+```
+
+```{r}
+write.csv(dist, "~/Desktop/NBA-FA-Paper/statsForAll.csv")
+write.csv(clusters, "~/Desktop/NBA-FA-Paper/statsForPredict.csv")
+```
+

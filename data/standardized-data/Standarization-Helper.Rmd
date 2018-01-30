@@ -1,0 +1,63 @@
+---
+title: "Variable Standardization"
+author: "William Wu"
+date: "11/29/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DataComputing)
+library(tidyr)
+library(printr)
+library(dplyr)
+```
+
+```{r}
+Adv2017 <- read.csv("~/Desktop/NBA-FA-SAGB/player-data-wrangled/player2011/Adv-2011wrangled.csv", stringsAsFactors = FALSE)
+PerGame2017 <-read.csv("~/Desktop/NBA-FA-SAGB/player-data-wrangled/player2011/PerGame-2011wrangled.csv", stringsAsFactors = FALSE)
+head(PerGame2017)
+```
+
+```{r}
+chooseAdv<- Adv2017[, c("Player", "VORP", "fix")]
+choosePer<- PerGame2017[, c("Player", "Pos", "Age", "Tm", "DRB", "TOV", "PS.G")]
+head(chooseAdv)
+```
+
+```{r}
+full2017<- choosePer %>% inner_join(chooseAdv, by = 'Player')
+head(full2017)
+```
+
+```{r}
+partiallyScaled <- full2017 %>% mutate_each_(funs(scale(.) %>% as.vector), vars=c("TOV","PS.G","VORP"))
+
+head(partiallyScaled)
+```
+
+```{r}
+smalls <- partiallyScaled %>%
+  filter(Pos == 'PG' | Pos == 'SG' | Pos == 'G') %>% 
+  mutate_each_(funs(scale(.) %>% as.vector), vars=c("DRB"))
+forwards <- partiallyScaled %>%
+  filter(Pos == 'SF' | Pos == 'PF' | Pos == 'F') %>% 
+  mutate_each_(funs(scale(.) %>% as.vector), vars=c("DRB"))
+centers <- partiallyScaled %>%
+  filter(Pos == 'C' | Pos == "PF-C") %>% 
+  mutate_each_(funs(scale(.) %>% as.vector), vars=c("DRB"))
+
+print(partiallyScaled %>%
+  filter(!Pos %in% c('PG', 'SG', 'G', 'SF', "PF", "F", "C",
+                     "PF-C")))
+
+
+```
+
+```{r}
+final <- rbind (smalls, forwards, centers)
+head(final)
+```
+
+
+
