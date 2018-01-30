@@ -3,8 +3,8 @@ Source code for "Classification of NBA Salaries through Player Statistics" - SAG
 
 Authors: William Wu, Kevin Feng, Raymond Li, Kunal Sengupta, Austin Cheng
 
-In association with the Sports Analytics Group at Berkeley (SAGB),
-an organization within the University of California, Berkeley
+In association with the Sports Analytics Group at Berkeley (SAGB), an organization within the University of California, Berkeley
+
 
 
 Notes:
@@ -14,6 +14,7 @@ as well as most of the source code for visualizations used in the paper. All sou
 and visualizations are licensed under Creative Commons Attribution 4.0. Please note that
 directory names used in the codebooks will need to be changed before the codebooks can run
 properly.
+
 
 
 Contents:
